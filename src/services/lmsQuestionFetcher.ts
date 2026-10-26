@@ -12,6 +12,7 @@ export interface LMSQuestionRaw {
   Option_B?: string;
   Option_C?: string;
   Option_D?: string;
+  Option_E?: string;
   Correct_Answer?: string;
   Explanation?: string;
 }
@@ -60,43 +61,54 @@ function mapRawToChallenge(item: LMSQuestionRaw, index: number): EnglishChalleng
     }
   }
 
-  // 2. Ekstrak opsi A, B, C, D
+  // 2. Ekstrak opsi A, B, C, D, E
   let optA = String(item.Option_A || '').trim();
   let optB = String(item.Option_B || '').trim();
   let optC = String(item.Option_C || '').trim();
   let optD = String(item.Option_D || '').trim();
+  let optE = String(item.Option_E || '').trim();
 
   // Jika baris tergeser (Option_A sebelumnya adalah teks prompt)
   if (String(item.Question_Text || '').trim().toLowerCase() === 'multiple_choice') {
     optA = optB;
     optB = optC;
     optC = optD;
-    optD = String(item.Correct_Answer || '').trim();
+    optD = optE || String(item.Correct_Answer || '').trim();
   }
 
-  const options = [optA, optB, optC, optD].filter(Boolean);
+  const options = [optA, optB, optC, optD, optE].filter(Boolean);
 
-  // 3. Ekstrak Correct_Answer. Jika berisi koma (misal "C,D"), ambil jawaban pertama saja
-  let answerRaw = String(item.Correct_Answer || (item as any).correct_answer || (item as any).answer || '').trim();
-  if (answerRaw.includes(',')) {
-    answerRaw = answerRaw.split(',')[0].trim();
+  // Helper untuk mencocokkan huruf A/B/C/D/E ke teks opsi sebenarnya
+  const mapCodeToOptionText = (rawCodeOrText: string): string => {
+    const raw = String(rawCodeOrText || '').trim();
+    const clean = raw.toUpperCase().replace(/[\(\)\.\:\_\-]/g, '').trim();
+    if (clean === 'A' || clean === 'OPTION A' || clean === 'OPSI A') return optA || raw;
+    if (clean === 'B' || clean === 'OPTION B' || clean === 'OPSI B') return optB || raw;
+    if (clean === 'C' || clean === 'OPTION C' || clean === 'OPSI C') return optC || raw;
+    if (clean === 'D' || clean === 'OPTION D' || clean === 'OPSI D') return optD || raw;
+    if (clean === 'E' || clean === 'OPTION E' || clean === 'OPSI E') return optE || raw;
+    return raw;
+  };
+
+  // 3. Ekstrak Correct_Answer. Jika berisi koma (misal "A, B" atau "C,D"), ubah correctAnswer menjadi jawaban pertama, dan isi correctAnswers dengan array teks opsi
+  const rawFullAnswer = String(item.Correct_Answer || (item as any).correct_answer || (item as any).answer || '').trim();
+
+  let correctAnswersList: string[] = [];
+  if (rawFullAnswer.includes(',')) {
+    const parts = rawFullAnswer.split(',').map(p => p.trim()).filter(Boolean);
+    correctAnswersList = parts.map(p => mapCodeToOptionText(p)).filter(Boolean);
+  } else if (rawFullAnswer) {
+    correctAnswersList = [mapCodeToOptionText(rawFullAnswer)];
   }
 
-  const cleanAns = answerRaw.toUpperCase().replace(/[\(\)\.\:\_\-]/g, '').trim();
-  let answerText = answerRaw;
-
-  // Jika berupa huruf A/B/C/D atau label opsi, cocokkan dengan teks opsi yang sesuai
-  if (cleanAns === 'A' || cleanAns === 'OPTION A' || cleanAns === 'OPSI A') {
-    answerText = optA || answerText;
-  } else if (cleanAns === 'B' || cleanAns === 'OPTION B' || cleanAns === 'OPSI B') {
-    answerText = optB || answerText;
-  } else if (cleanAns === 'C' || cleanAns === 'OPTION C' || cleanAns === 'OPSI C') {
-    answerText = optC || answerText;
-  } else if (cleanAns === 'D' || cleanAns === 'OPTION D' || cleanAns === 'OPSI D') {
-    answerText = optD || answerText;
-  } else if (!answerText && options.length > 0) {
-    // Fallback jika kosong
+  // Jawaban pertama untuk validasi single-choice
+  const firstAnswerCodeOrText = rawFullAnswer.includes(',') ? rawFullAnswer.split(',')[0].trim() : rawFullAnswer;
+  let answerText = mapCodeToOptionText(firstAnswerCodeOrText);
+  if (!answerText && options.length > 0) {
     answerText = options[0];
+  }
+  if (correctAnswersList.length === 0 && answerText) {
+    correctAnswersList = [answerText];
   }
 
   // 4. Tentukan jenis soal berdasarkan Question_Type
@@ -118,6 +130,7 @@ function mapRawToChallenge(item: LMSQuestionRaw, index: number): EnglishChalleng
     prompt: promptText,
     options,
     correctAnswer: answerText,
+    correctAnswers: correctAnswersList.length > 0 ? correctAnswersList : undefined,
     explanation: String(item.Explanation || '').trim() || 'Perhatikan opsi jawaban yang tepat di atas.',
     exampleSentence: promptText,
     hint: 'Perhatikan petunjuk konteks dan struktur kalimat.',

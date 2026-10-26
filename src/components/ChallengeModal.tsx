@@ -17,10 +17,13 @@ export const ChallengeModal: React.FC<ChallengeModalProps> = ({
   onClose,
 }) => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [scrambleOrder, setScrambleOrder] = useState<string[]>([]);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
   const [showHint, setShowHint] = useState<boolean>(false);
+
+  const isComplexMcq = challenge.type === 'complex_mcq';
 
   // Clean question prompt text (prevent 'multiple_choice' or raw types appearing as question text)
   const isTypePrompt = ['multiple_choice', 'complex_mcq', 'true_false', 'fill_in_the_blank', 'sentence_scramble', 'word_unscramble']
@@ -42,7 +45,16 @@ export const ChallengeModal: React.FC<ChallengeModalProps> = ({
   const handleSelectOption = (opt: string) => {
     if (isSubmitted && isCorrect) return;
     gameAudio.playClickSound();
-    setSelectedOption(opt);
+
+    if (isComplexMcq) {
+      if (selectedOptions.includes(opt)) {
+        setSelectedOptions(selectedOptions.filter(o => o !== opt));
+      } else {
+        setSelectedOptions([...selectedOptions, opt]);
+      }
+    } else {
+      setSelectedOption(opt);
+    }
   };
 
   // Sentence scramble click word
@@ -63,6 +75,16 @@ export const ChallengeModal: React.FC<ChallengeModalProps> = ({
     if (challenge.type === 'sentence_scramble') {
       const constructed = scrambleOrder.join(' ');
       correct = constructed.trim().toLowerCase() === challenge.correctAnswer.trim().toLowerCase();
+    } else if (isComplexMcq) {
+      // Bandingkan array jawaban yang dipilih user dengan challenge.correctAnswers
+      const targets = (challenge.correctAnswers && challenge.correctAnswers.length > 0)
+        ? challenge.correctAnswers.map(a => a.trim().toLowerCase())
+        : [challenge.correctAnswer.trim().toLowerCase()];
+
+      const userChoices = selectedOptions.map(o => o.trim().toLowerCase());
+
+      correct = targets.length === userChoices.length &&
+        targets.every(t => userChoices.includes(t));
     } else {
       correct = selectedOption?.trim().toLowerCase() === challenge.correctAnswer.trim().toLowerCase();
     }
@@ -86,6 +108,7 @@ export const ChallengeModal: React.FC<ChallengeModalProps> = ({
     gameAudio.playClickSound();
     setIsSubmitted(false);
     setSelectedOption(null);
+    setSelectedOptions([]);
     setScrambleOrder([]);
   };
 
@@ -134,10 +157,10 @@ export const ChallengeModal: React.FC<ChallengeModalProps> = ({
         <div className="p-6 space-y-6 flex-1 overflow-y-auto max-h-[70vh]">
           {/* Question Prompt */}
           <div className="space-y-3">
-            {challenge.type === 'complex_mcq' && (
+            {isComplexMcq && (
               <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs font-medium">
                 <HelpCircle className="w-3.5 h-3.5 shrink-0 text-amber-400" />
-                <span>Petunjuk: Pilih salah satu jawaban yang paling tepat (Single Choice)</span>
+                <span>Pilih lebih dari satu jawaban (Complex MCQ)</span>
               </div>
             )}
 
@@ -204,16 +227,25 @@ export const ChallengeModal: React.FC<ChallengeModalProps> = ({
               </div>
             </div>
           ) : (
-            /* Multiple Choice / Fill in blank */
+            /* Multiple Choice (Single) or Complex MCQ (Checkbox) */
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {challenge.options?.map((option, idx) => {
-                const isSelected = selectedOption === option;
+                const isSelected = isComplexMcq
+                  ? selectedOptions.includes(option)
+                  : selectedOption === option;
+
+                const targetAnswers = (challenge.correctAnswers && challenge.correctAnswers.length > 0)
+                  ? challenge.correctAnswers.map(a => a.trim().toLowerCase())
+                  : [challenge.correctAnswer.trim().toLowerCase()];
+
+                const isTargetCorrect = targetAnswers.includes(option.trim().toLowerCase());
+
                 let optionStyle = 'border-slate-700 bg-slate-800/80 hover:bg-slate-750 text-slate-200';
 
                 if (isSubmitted) {
-                  if (option === challenge.correctAnswer) {
+                  if (isTargetCorrect) {
                     optionStyle = 'border-emerald-500 bg-emerald-950/80 text-emerald-200 font-semibold ring-2 ring-emerald-500/40';
-                  } else if (isSelected && !isCorrect) {
+                  } else if (isSelected && !isTargetCorrect) {
                     optionStyle = 'border-rose-500 bg-rose-950/80 text-rose-200 line-through';
                   } else {
                     optionStyle = 'opacity-40 border-slate-800 bg-slate-900 text-slate-500';
@@ -222,17 +254,43 @@ export const ChallengeModal: React.FC<ChallengeModalProps> = ({
                   optionStyle = 'border-amber-400 bg-amber-950/50 text-amber-200 ring-2 ring-amber-400/30';
                 }
 
+                const isFifthInFive = idx === 4 && challenge.options?.length === 5;
+
                 return (
                   <button
                     key={idx}
                     disabled={isSubmitted && isCorrect}
                     onClick={() => handleSelectOption(option)}
-                    className={`flex items-center gap-3 p-3.5 text-left text-sm rounded-xl border transition-all cursor-pointer ${optionStyle}`}
+                    className={`flex items-center gap-3 p-3.5 text-left text-sm rounded-xl border transition-all cursor-pointer ${
+                      isFifthInFive ? 'sm:col-span-2' : ''
+                    } ${optionStyle}`}
                   >
-                    <span className="w-6 h-6 shrink-0 rounded-md bg-slate-700/50 flex items-center justify-center text-xs font-mono text-slate-300">
-                      {String.fromCharCode(65 + idx)}
+                    {isComplexMcq ? (
+                      /* Checkbox style indicator */
+                      <div
+                        className={`w-5 h-5 shrink-0 rounded-md border flex items-center justify-center transition-all ${
+                          isSelected
+                            ? 'bg-amber-400 border-amber-400 text-slate-950 shadow-xs'
+                            : 'border-slate-600 bg-slate-800 text-transparent'
+                        }`}
+                      >
+                        <Check className="w-3.5 h-3.5 stroke-[3]" />
+                      </div>
+                    ) : (
+                      /* Radio / Letter indicator */
+                      <span className="w-6 h-6 shrink-0 rounded-md bg-slate-700/50 flex items-center justify-center text-xs font-mono text-slate-300">
+                        {String.fromCharCode(65 + idx)}
+                      </span>
+                    )}
+
+                    <span className="flex-1 font-medium">
+                      {isComplexMcq && (
+                        <span className="text-xs font-mono text-slate-400 mr-2">
+                          {String.fromCharCode(65 + idx)}.
+                        </span>
+                      )}
+                      {option}
                     </span>
-                    <span className="flex-1 font-medium">{option}</span>
                   </button>
                 );
               })}
@@ -262,6 +320,11 @@ export const ChallengeModal: React.FC<ChallengeModalProps> = ({
                 )}
               </div>
               <p className="text-xs text-slate-300 leading-relaxed">{challenge.explanation}</p>
+              {isComplexMcq && challenge.correctAnswers && (
+                <div className="text-xs text-emerald-300/90 font-medium pt-1">
+                  Correct answers: {challenge.correctAnswers.join(', ')}
+                </div>
+              )}
               {challenge.exampleSentence && (
                 <div className="text-xs text-slate-400 italic pt-1 border-t border-slate-800">
                   Example: "{challenge.exampleSentence}"
@@ -294,7 +357,11 @@ export const ChallengeModal: React.FC<ChallengeModalProps> = ({
         {/* Footer Actions */}
         <div className="flex items-center justify-between px-6 py-4 bg-slate-800/50 border-t border-slate-700/80">
           <div className="text-xs text-slate-400">
-            {isCorrect ? 'Crop received moisture and nutrients' : 'Select an option to advance plant growth'}
+            {isCorrect
+              ? 'Crop received moisture and nutrients'
+              : isComplexMcq
+              ? 'Pilih lebih dari satu jawaban (Complex MCQ)'
+              : 'Select an option to advance plant growth'}
           </div>
 
           <div className="flex items-center gap-3">
@@ -303,6 +370,8 @@ export const ChallengeModal: React.FC<ChallengeModalProps> = ({
                 disabled={
                   challenge.type === 'sentence_scramble'
                     ? scrambleOrder.length === 0
+                    : isComplexMcq
+                    ? selectedOptions.length === 0
                     : !selectedOption
                 }
                 onClick={handleSubmit}

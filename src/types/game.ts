@@ -19,6 +19,7 @@ export interface EnglishChallenge {
   targetWord?: string;
   options?: string[]; // for multiple choice
   correctAnswer: string;
+  correctAnswers?: string[]; // for complex_mcq (multiple correct answers)
   scrambledWords?: string[]; // for sentence_scramble
   explanation: string;
   exampleSentence: string;
