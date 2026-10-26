@@ -22,10 +22,19 @@ export const ChallengeModal: React.FC<ChallengeModalProps> = ({
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
   const [showHint, setShowHint] = useState<boolean>(false);
 
+  // Clean question prompt text (prevent 'multiple_choice' or raw types appearing as question text)
+  const isTypePrompt = ['multiple_choice', 'complex_mcq', 'true_false', 'fill_in_the_blank', 'sentence_scramble', 'word_unscramble']
+    .includes(String(challenge.prompt || '').trim().toLowerCase());
+  const cleanPrompt = !isTypePrompt && challenge.prompt?.trim()
+    ? challenge.prompt
+    : (challenge.exampleSentence && !['multiple_choice', 'complex_mcq'].includes(challenge.exampleSentence.toLowerCase())
+        ? challenge.exampleSentence
+        : 'Choose the best answer for the question:');
+
   // Audio pronunciation
   const handleListen = () => {
     gameAudio.playClickSound();
-    const textToSpeak = challenge.targetWord || challenge.correctAnswer || challenge.prompt;
+    const textToSpeak = challenge.targetWord || challenge.correctAnswer || cleanPrompt;
     gameAudio.speakEnglish(textToSpeak);
   };
 
@@ -106,7 +115,9 @@ export const ChallengeModal: React.FC<ChallengeModalProps> = ({
                 <span aria-hidden="true">·</span>
                 <span>Level {challenge.level}</span>
                 <span aria-hidden="true">·</span>
-                <span className="capitalize">{challenge.type.replace('_', ' ')}</span>
+                <span className="capitalize">
+                  {challenge.type === 'complex_mcq' ? 'Complex MCQ' : challenge.type.replace('_', ' ')}
+                </span>
               </div>
             </div>
           </div>
@@ -123,9 +134,16 @@ export const ChallengeModal: React.FC<ChallengeModalProps> = ({
         <div className="p-6 space-y-6 flex-1 overflow-y-auto max-h-[70vh]">
           {/* Question Prompt */}
           <div className="space-y-3">
+            {challenge.type === 'complex_mcq' && (
+              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs font-medium">
+                <HelpCircle className="w-3.5 h-3.5 shrink-0 text-amber-400" />
+                <span>Petunjuk: Pilih salah satu jawaban yang paling tepat (Single Choice)</span>
+              </div>
+            )}
+
             <div className="flex items-start justify-between gap-4">
               <p className="text-lg font-medium text-slate-100 leading-relaxed font-sans">
-                {challenge.prompt}
+                {cleanPrompt}
               </p>
               <button
                 onClick={handleListen}

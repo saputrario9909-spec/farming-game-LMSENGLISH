@@ -44,36 +44,48 @@ function normalizeLevel(rawLevel: string = ''): CefrLevel {
  * Memetakan item raw dari LMS Google Sheets API ke EnglishChallenge format Game
  */
 function mapRawToChallenge(item: LMSQuestionRaw, index: number): EnglishChallenge {
-  let promptText = String(item.Question_Text || '').trim();
+  // 1. Pastikan prompt diambil dari Question_Text. Jika kosong, gunakan item.prompt. JANGAN gunakan Question_Type!
+  let promptText = String(item.Question_Text || (item as any).prompt || '').trim();
+
+  // Jika Question_Text secara tidak sengaja berisi nama tipe soal (misal "multiple_choice"), pulihkan teks sebenarnya
+  const isTypeAsPrompt = ['multiple_choice', 'complex_mcq', 'true_false', 'fill_in_the_blank', 'sentence_scramble', 'word_unscramble'].includes(promptText.toLowerCase());
+  if (isTypeAsPrompt || !promptText) {
+    if ((item as any).prompt && !['multiple_choice', 'complex_mcq', 'true_false', 'fill_in_the_blank'].includes(String((item as any).prompt).toLowerCase())) {
+      promptText = String((item as any).prompt).trim();
+    } else if (item.Option_A && isTypeAsPrompt) {
+      // Terjadi pergeseran kolom data lama di mana Option_A menyimpan teks prompt
+      promptText = String(item.Option_A).trim();
+    } else {
+      promptText = 'Choose the correct answer:';
+    }
+  }
+
+  // 2. Ekstrak opsi A, B, C, D
   let optA = String(item.Option_A || '').trim();
   let optB = String(item.Option_B || '').trim();
   let optC = String(item.Option_C || '').trim();
   let optD = String(item.Option_D || '').trim();
-  let answerText = String(item.Correct_Answer || '').trim();
-  let explanationText = String(item.Explanation || '').trim();
 
-  // Deteksi pemulihan jika baris soal pada Google Sheet tergeser 1 kolom (kolom Question_Text berisi jenis soal)
-  const isTypeInQuestionText =
-    promptText.toLowerCase() === 'multiple_choice' ||
-    promptText.toLowerCase() === 'complex_mcq' ||
-    promptText.toLowerCase() === 'true_false' ||
-    promptText.toLowerCase() === 'fill_in_the_blank';
-
-  if (isTypeInQuestionText) {
-    promptText = optA;
+  // Jika baris tergeser (Option_A sebelumnya adalah teks prompt)
+  if (String(item.Question_Text || '').trim().toLowerCase() === 'multiple_choice') {
     optA = optB;
     optB = optC;
     optC = optD;
-    optD = answerText;
-    answerText = explanationText;
-    explanationText = 'Kunci jawaban terverifikasi dari kurikulum guru.';
+    optD = String(item.Correct_Answer || '').trim();
   }
 
   const options = [optA, optB, optC, optD].filter(Boolean);
 
-  const cleanAns = answerText.toUpperCase().replace(/[\(\)\.\:\_\-]/g, '').trim();
+  // 3. Ekstrak Correct_Answer. Jika berisi koma (misal "C,D"), ambil jawaban pertama saja
+  let answerRaw = String(item.Correct_Answer || (item as any).correct_answer || (item as any).answer || '').trim();
+  if (answerRaw.includes(',')) {
+    answerRaw = answerRaw.split(',')[0].trim();
+  }
 
-  // Jika Correct_Answer berupa huruf atau label opsi A-D, cocokkan dengan opsi yang sesuai
+  const cleanAns = answerRaw.toUpperCase().replace(/[\(\)\.\:\_\-]/g, '').trim();
+  let answerText = answerRaw;
+
+  // Jika berupa huruf A/B/C/D atau label opsi, cocokkan dengan teks opsi yang sesuai
   if (cleanAns === 'A' || cleanAns === 'OPTION A' || cleanAns === 'OPSI A') {
     answerText = optA || answerText;
   } else if (cleanAns === 'B' || cleanAns === 'OPTION B' || cleanAns === 'OPSI B') {
@@ -87,9 +99,9 @@ function mapRawToChallenge(item: LMSQuestionRaw, index: number): EnglishChalleng
     answerText = options[0];
   }
 
-  // Tentukan jenis soal berdasarkan Question_Type
+  // 4. Tentukan jenis soal berdasarkan Question_Type
   let challengeType: ChallengeType = 'multiple_choice';
-  const rawType = String(item.Question_Type || '').toLowerCase();
+  const rawType = String(item.Question_Type || (item as any).type || '').toLowerCase();
   if (rawType.includes('complex') || rawType.includes('multi')) {
     challengeType = 'complex_mcq';
   } else if (rawType.includes('true')) {
@@ -103,11 +115,11 @@ function mapRawToChallenge(item: LMSQuestionRaw, index: number): EnglishChalleng
     category: normalizeCategory(item.Category),
     level: normalizeLevel(item.Level),
     type: challengeType,
-    prompt: promptText || 'Pilih jawaban yang benar:',
+    prompt: promptText,
     options,
     correctAnswer: answerText,
-    explanation: explanationText || item.Explanation || 'Perhatikan opsi jawaban yang tepat di atas.',
-    exampleSentence: promptText || '',
+    explanation: String(item.Explanation || '').trim() || 'Perhatikan opsi jawaban yang tepat di atas.',
+    exampleSentence: promptText,
     hint: 'Perhatikan petunjuk konteks dan struktur kalimat.',
   };
 }
