@@ -1,4 +1,20 @@
-import { CefrLevel, LMSConfig, LMSPostMessagePayload, StudentProfile } from '../types/game';
+import { CefrLevel, LMSConfig, StudentProfile } from '../types/game';
+
+// Interface payload postMessage ke LMS host
+export interface LMSPostMessagePayload {
+  type: 'LMS_READY' | 'LMS_QUESTION_SUBMIT' | 'LMS_HARVEST' | 'LMS_GRADE_PASSBACK' | 'LMS_HEARTBEAT';
+  timestamp: string;
+  studentId: string;
+  studentName: string;
+  score: number;
+  xp?: number; // Nilai XP panen atau tambahan XP yang dikirim langsung ke LMS
+  accuracy: number;
+  gradePercentage: number;
+  passed: boolean;
+  wordsMasteredCount: number;
+  timeSpentSeconds: number;
+  metadata?: Record<string, unknown>;
+}
 
 export interface LMSMessageEventLog {
   id: string;
@@ -9,6 +25,7 @@ export interface LMSMessageEventLog {
 }
 
 export const PRODUCTION_LMS_ORIGIN = 'https://english-studiosmasif.vercel.app';
+export const LOCAL_LMS_ORIGIN = 'http://localhost:3000';
 
 class LMSBridgeService {
   private config: LMSConfig = {
@@ -28,7 +45,8 @@ class LMSBridgeService {
 
   /**
    * Mendapatkan target origin yang aman untuk postMessage.
-   * - Development: Jika game berjalan di localhost / 127.0.0.1 atau di-embed dari localhost, izinkan '*' untuk kemudahan testing.
+   * - Development / Local: Jika game berjalan di localhost / 127.0.0.1 atau di-embed dari localhost,
+   *   gunakan "http://localhost:3000" (atau origin parent localhost / "*") untuk testing.
    * - Production: Kunci target origin ke URL LMS resmi: "https://english-studiosmasif.vercel.app"
    */
   public getTargetOrigin(): string {
@@ -43,6 +61,7 @@ class LMSBridgeService {
 
     // Cek juga apakah parent window berasal dari localhost (misal game dibuka via iframe di LMS localhost:3000)
     let isParentLocalhost = false;
+    let referrerOrigin: string | null = null;
     try {
       if (document.referrer) {
         const refUrl = new URL(document.referrer);
@@ -52,16 +71,31 @@ class LMSBridgeService {
           refUrl.hostname === '[::1]'
         ) {
           isParentLocalhost = true;
+          referrerOrigin = refUrl.origin;
         }
       }
     } catch {
       // Abaikan jika URL referrer tidak valid
     }
 
-    if (isLocalhost || isParentLocalhost) {
-      return '*';
+    const isDevelopment = Boolean(import.meta.env?.DEV) || isLocalhost || isParentLocalhost;
+
+    // Logika Kondisional:
+    if (isDevelopment) {
+      // Opsi custom via query param jika disediakan (?target_origin=* atau custom)
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const customOrigin = params.get('target_origin') || params.get('lms_origin');
+        if (customOrigin) return customOrigin;
+      } catch {
+        // Abaikan
+      }
+
+      // Prioritaskan referrer origin (misal http://localhost:3000) atau konstanta LOCAL_LMS_ORIGIN
+      return referrerOrigin || LOCAL_LMS_ORIGIN;
     }
 
+    // Production environment: selalu kunci ke domain Vercel LMS resmi
     return PRODUCTION_LMS_ORIGIN;
   }
 
@@ -153,13 +187,28 @@ class LMSBridgeService {
 
     const targetOrigin = this.getTargetOrigin();
 
+    const postSafely = (targetWindow: Window) => {
+      try {
+        targetWindow.postMessage(payload, targetOrigin);
+      } catch (err) {
+        // Fallback ke wildcard '*' jika di local development testing
+        if (targetOrigin !== '*') {
+          try {
+            targetWindow.postMessage(payload, '*');
+          } catch {
+            console.warn('[LMSBridge] Failed to postMessage:', err);
+          }
+        }
+      }
+    };
+
     // Send to parent window if in iframe
     if (window.parent && window.parent !== window) {
-      window.parent.postMessage(payload, targetOrigin);
+      postSafely(window.parent);
     }
     // Also send to window.opener if opened via popup
     if (window.opener) {
-      window.opener.postMessage(payload, targetOrigin);
+      postSafely(window.opener);
     }
   }
 

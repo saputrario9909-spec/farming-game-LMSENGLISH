@@ -301,12 +301,16 @@ export default function App() {
       return updated;
     });
 
-    // Notify LMS of harvest
+    const harvestXp = crop.harvestRewardXp || earnedXp || 50;
+    console.log("Mengirim XP Panen ke LMS:", harvestXp);
+
+    // Notify LMS of harvest dengan menyertakan nilai XP panen aktual
     lmsBridge.sendToLMS({
       type: 'LMS_HARVEST',
       timestamp: new Date().toISOString(),
       studentId: profile.studentId,
       studentName: profile.studentName,
+      xp: harvestXp, // Pastikan nilai XP panen terkirim secara pasti
       score: profile.xp + earnedXp,
       accuracy: profile.totalAnswered > 0 ? Math.round((profile.correctAnswers / profile.totalAnswered) * 100) : 100,
       gradePercentage: Math.min(100, Math.round(((profile.xp + earnedXp) / 250) * 100)),
@@ -316,6 +320,7 @@ export default function App() {
       metadata: {
         cropName: crop.name,
         category: crop.category,
+        earnedXp: harvestXp,
       },
     });
 

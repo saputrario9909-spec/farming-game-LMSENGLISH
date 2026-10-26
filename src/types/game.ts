@@ -111,6 +111,7 @@ export interface LMSPostMessagePayload {
   studentId: string;
   studentName: string;
   score: number;
+  xp?: number;
   accuracy: number;
   gradePercentage: number;
   passed: boolean;
