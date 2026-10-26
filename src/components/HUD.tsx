@@ -57,7 +57,7 @@ export const HUD: React.FC<HUDProps> = ({
       {/* Top Header Cluster */}
       <div className="flex items-start justify-between w-full gap-4">
         {/* Left: Student Identity & Resources */}
-        <div className="pointer-events-auto flex items-center gap-3 p-2 px-3 rounded-2xl bg-[#2A1B22]/95 border border-[#775465]/50 text-[#FAF6F4] shadow-2xl">
+        <div className="pointer-events-auto flex items-center gap-3 p-2.5 px-4 glass-panel text-[#FAF6F4]">
           {/* Avatar / Level */}
           <div className="relative w-10 h-10 rounded-xl bg-[#482E3D] border border-[#775465] flex flex-col items-center justify-center text-[#FFF0F5] font-bold">
             <span className="text-[10px] uppercase tracking-tighter text-[#D4A5B8]">LVL</span>
@@ -103,7 +103,7 @@ export const HUD: React.FC<HUDProps> = ({
               onOpenAlmanac();
             }}
             title="Open Lexicon Almanac (Vocabulary & Grammar Notebook)"
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl bg-[#2A1B22]/90 border border-[#775465]/50 hover:border-[#EADDE5] text-[#FAF6F4] hover:bg-[#3B2A33] transition-all shadow-lg cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl glass-button text-[#FAF6F4] cursor-pointer"
           >
             <BookOpen className="w-4 h-4 text-amber-400" />
             <span className="hidden sm:inline">Lexicon</span>
@@ -119,7 +119,7 @@ export const HUD: React.FC<HUDProps> = ({
               onOpenMarket();
             }}
             title="Open Seed Market"
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl bg-[#2A1B22]/90 border border-[#775465]/50 hover:border-[#EADDE5] text-[#FAF6F4] hover:bg-[#3B2A33] transition-all shadow-lg cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl glass-button text-[#FAF6F4] cursor-pointer"
           >
             <Store className="w-4 h-4 text-[#D4A5B8]" />
             <span className="hidden sm:inline">Market</span>
@@ -132,7 +132,7 @@ export const HUD: React.FC<HUDProps> = ({
               onOpenLMS();
             }}
             title="Antigravity LMS Integration & Grade Passback"
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl bg-[#482E3D]/95 border border-[#775465] hover:border-[#EADDE5] text-[#FFF0F5] hover:bg-[#5D3D4E] transition-all shadow-lg cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl glass-button text-[#FFF0F5] cursor-pointer"
           >
             <Share2 className="w-4 h-4 text-[#EADDE5]" />
             <span className="hidden sm:inline">LMS Sync</span>
@@ -142,7 +142,7 @@ export const HUD: React.FC<HUDProps> = ({
           <button
             onClick={handleToggleAudio}
             title={isMuted ? 'Unmute Audio' : 'Mute Audio'}
-            className="p-2 text-[#D8C7D2] hover:text-white rounded-xl bg-[#2A1B22]/90 border border-[#775465]/50 hover:bg-[#3B2A33] transition-colors cursor-pointer"
+            className="p-2 text-[#D8C7D2] hover:text-white rounded-xl glass-button cursor-pointer"
           >
             {isMuted ? <VolumeX className="w-4 h-4 text-rose-400" /> : <Volume2 className="w-4 h-4 text-[#D4A5B8]" />}
           </button>
@@ -154,7 +154,7 @@ export const HUD: React.FC<HUDProps> = ({
               onPause();
             }}
             title="Pause Game (Esc)"
-            className="p-2 text-[#D8C7D2] hover:text-white rounded-xl bg-[#2A1B22]/90 border border-[#775465]/50 hover:bg-[#3B2A33] transition-colors cursor-pointer"
+            className="p-2 text-[#D8C7D2] hover:text-white rounded-xl glass-button cursor-pointer"
           >
             <Pause className="w-4 h-4" />
           </button>
@@ -164,7 +164,7 @@ export const HUD: React.FC<HUDProps> = ({
       {/* Bottom Row: Active Quest on Left + Toolbelt in Center */}
       <div className="flex items-end justify-between w-full gap-4">
         {/* Active Learning Quest */}
-        <div className="pointer-events-auto hidden md:flex flex-col p-3 rounded-2xl bg-[#2A1B22]/95 border border-[#775465]/50 text-[#FAF6F4] max-w-xs shadow-2xl space-y-1.5">
+        <div className="pointer-events-auto hidden md:flex flex-col p-3.5 glass-panel text-[#FAF6F4] max-w-xs space-y-1.5">
           <div className="flex items-center gap-1.5 text-xs font-semibold text-[#D4A5B8]">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Active Botanical Quest</span>
@@ -185,7 +185,7 @@ export const HUD: React.FC<HUDProps> = ({
         </div>
 
         {/* Center: Tool Belt & Seed Selector */}
-        <div className="pointer-events-auto mx-auto flex items-center gap-2 p-2 rounded-2xl bg-[#2A1B22]/95 border border-[#775465]/50 shadow-2xl">
+        <div className="pointer-events-auto mx-auto flex items-center gap-2 p-2 glass-panel">
           {/* Trowel Tool */}
           <button
             onClick={() => {

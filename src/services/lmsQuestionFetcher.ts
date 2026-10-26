@@ -52,16 +52,20 @@ function mapRawToChallenge(item: LMSQuestionRaw, index: number): EnglishChalleng
   const options = [optA, optB, optC, optD].filter(Boolean);
 
   let answerText = String(item.Correct_Answer || '').trim();
-  const upperAns = answerText.toUpperCase();
+  const cleanAns = answerText.toUpperCase().replace(/[\(\)\.\:\_\-]/g, '').trim();
 
-  if (upperAns === 'A' || upperAns === 'OPTION_A' || upperAns === 'OPTION A') {
-    answerText = optA;
-  } else if (upperAns === 'B' || upperAns === 'OPTION_B' || upperAns === 'OPTION B') {
-    answerText = optB;
-  } else if (upperAns === 'C' || upperAns === 'OPTION_C' || upperAns === 'OPTION C') {
-    answerText = optC;
-  } else if (upperAns === 'D' || upperAns === 'OPTION_D' || upperAns === 'OPTION D') {
-    answerText = optD;
+  // Jika Correct_Answer berupa huruf atau label opsi A-D, cocokkan dengan opsi yang sesuai
+  if (cleanAns === 'A' || cleanAns === 'OPTION A' || cleanAns === 'OPSI A') {
+    answerText = optA || answerText;
+  } else if (cleanAns === 'B' || cleanAns === 'OPTION B' || cleanAns === 'OPSI B') {
+    answerText = optB || answerText;
+  } else if (cleanAns === 'C' || cleanAns === 'OPTION C' || cleanAns === 'OPSI C') {
+    answerText = optC || answerText;
+  } else if (cleanAns === 'D' || cleanAns === 'OPTION D' || cleanAns === 'OPSI D') {
+    answerText = optD || answerText;
+  } else if (!answerText && options.length > 0) {
+    // Fallback jika kosong
+    answerText = options[0];
   }
 
   // Tentukan jenis soal berdasarkan Question_Type
@@ -92,7 +96,7 @@ function mapRawToChallenge(item: LMSQuestionRaw, index: number): EnglishChalleng
 /**
  * Mengambil bank soal dari LMS API dan memetakannya ke EnglishChallenge[]
  * Parameter category dan level dipertahankan di signature, namun pengambilan soal mengambil semua data tanpa filter level/kategori.
- * Soal bertipe bacaan panjang (reading/passage) dan teks pertanyaan yang terlalu panjang (>200 karakter) otomatis disaring keluar.
+ * Soal bertipe bacaan panjang (reading/passage) dan teks pertanyaan yang terlalu panjang (>400 karakter) otomatis disaring keluar.
  */
 export async function fetchQuestionsFromLMS(
   _category?: string,
@@ -119,18 +123,20 @@ export async function fetchQuestionsFromLMS(
       return [];
     }
 
-    // Filter Reading: Buang soal reading/passage atau soal dengan Question_Text > 200 karakter
+    // Filter Reading: Buang soal reading/passage atau soal dengan Question_Text > 400 karakter
     const eligibleData = json.data.filter((item: LMSQuestionRaw) => {
       const qType = String(item.Question_Type || '').toLowerCase();
       if (qType.includes('reading') || qType.includes('passage') || qType.includes('text')) {
         return false;
       }
       const qText = String(item.Question_Text || '').trim();
-      if (qText.length > 200) {
+      if (qText.length > 400) {
         return false;
       }
       return true;
     });
+
+    console.log('[LMS Fetch] Jumlah soal yang lolos filter:', eligibleData.length);
 
     const challenges: EnglishChallenge[] = eligibleData.map((item: LMSQuestionRaw, idx: number) =>
       mapRawToChallenge(item, idx)

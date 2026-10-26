@@ -8,3 +8,29 @@
   --plum-light: #faf6f4;
   --plum-border: #eadde5;
 }
+
+/* Glassmorphism Design System Utility Classes */
+.glass-panel {
+  background-color: rgba(42, 27, 34, 0.78);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(234, 221, 229, 0.22);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.12);
+  border-radius: 1.5rem;
+}
+
+.glass-button {
+  background-color: rgba(119, 84, 101, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(234, 221, 229, 0.28);
+  box-shadow: 0 4px 15px rgba(30, 18, 26, 0.4);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-button:hover {
+  background-color: #5d3d4e;
+  border-color: rgba(234, 221, 229, 0.5);
+  box-shadow: 0 0 22px rgba(119, 84, 101, 0.65), 0 4px 15px rgba(0, 0, 0, 0.4);
+  transform: translateY(-1px);
+}

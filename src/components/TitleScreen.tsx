@@ -55,7 +55,7 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
   ];
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden flex flex-col items-center justify-between p-6 sm:p-10 select-none bg-[#1E121A]">
+    <div className="relative w-screen h-screen overflow-hidden flex flex-col items-center justify-between p-6 sm:p-10 select-none bg-gradient-to-br from-[#1E121A] via-[#2A1B22] to-[#775465]/30">
       {/* Live Animated Background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {/* Soft radial glow */}
@@ -94,7 +94,7 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
 
         <button
           onClick={toggleSound}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-[#FAF6F4] bg-[#2A1B22]/90 border border-[#775465]/50 rounded-lg hover:text-white hover:bg-[#3B2A33] transition-colors cursor-pointer"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-[#FAF6F4] glass-button rounded-xl cursor-pointer"
         >
           {isMuted ? <VolumeX className="w-3.5 h-3.5 text-rose-400" /> : <Volume2 className="w-3.5 h-3.5 text-[#D4A5B8]" />}
           <span>{isMuted ? 'Muted' : 'Audio On'}</span>
@@ -163,8 +163,8 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
           </p>
         </div>
 
-        {/* Student Setup Form */}
-        <div className="w-full max-w-md p-5 bg-[#2A1B22]/95 border border-[#775465]/50 rounded-2xl shadow-2xl space-y-4">
+        {/* Student Setup Form with Glassmorphism */}
+        <div className="w-full max-w-md p-6 glass-panel space-y-4">
           <div className="text-left space-y-1.5">
             <label className="text-xs font-semibold text-[#EADDE5]">Gardener Student Name</label>
             <input
@@ -172,7 +172,7 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
               value={studentName}
               onChange={(e) => setStudentName(e.target.value)}
               placeholder="Enter your student name..."
-              className="w-full px-3.5 py-2 text-sm bg-[#1E121A] border border-[#775465]/50 rounded-xl text-[#FAF6F4] placeholder-[#A4949E] focus:outline-hidden focus:border-[#EADDE5] transition-colors"
+              className="w-full px-3.5 py-2 text-sm bg-[#1E121A]/70 border border-[#775465]/50 rounded-xl text-[#FAF6F4] placeholder-[#A4949E] focus:outline-hidden focus:border-[#EADDE5] transition-colors"
             />
           </div>
 
@@ -191,7 +191,7 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
                   className={`py-2 text-xs font-semibold rounded-lg border transition-all cursor-pointer ${
                     level === lvl.id
                       ? 'bg-[#775465] text-white border-[#EADDE5] shadow-xs'
-                      : 'bg-[#1E121A] text-[#D8C7D2] border-[#775465]/40 hover:border-[#775465] hover:text-white'
+                      : 'bg-[#1E121A]/80 text-[#D8C7D2] border-[#775465]/40 hover:border-[#775465] hover:text-white'
                   }`}
                 >
                   {lvl.id}
@@ -203,10 +203,10 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
             </p>
           </div>
 
-          {/* Primary Start CTA Button */}
+          {/* Primary Start CTA Button with Glassmorphism Glow */}
           <button
             onClick={handleStart}
-            className="w-full py-3.5 px-6 rounded-xl font-bold text-sm text-white bg-[#775465] hover:bg-[#5D3D4E] border border-[#EADDE5]/30 shadow-lg shadow-[#775465]/30 flex items-center justify-center gap-2 transition-all transform active:scale-[0.98] cursor-pointer"
+            className="w-full py-3.5 px-6 rounded-xl font-bold text-sm text-white glass-button flex items-center justify-center gap-2 transition-all transform active:scale-[0.98] cursor-pointer hover:shadow-[0_0_25px_rgba(119,84,101,0.7)]"
           >
             <Play className="w-4 h-4 fill-white text-white" />
             <span>Enter Garden & Begin Planting</span>
