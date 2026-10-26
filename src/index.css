@@ -1,1 +1,10 @@
 @import "tailwindcss";
+
+:root {
+  --plum-primary: #775465;
+  --plum-hover: #5d3d4e;
+  --plum-dark: #2a1b22;
+  --plum-darker: #1e121a;
+  --plum-light: #faf6f4;
+  --plum-border: #eadde5;
+}

@@ -55,19 +55,19 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
   ];
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden flex flex-col items-center justify-between p-6 sm:p-10 select-none bg-[#0a160d]">
+    <div className="relative w-screen h-screen overflow-hidden flex flex-col items-center justify-between p-6 sm:p-10 select-none bg-[#1E121A]">
       {/* Live Animated Background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {/* Soft radial glow */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-emerald-600/15 rounded-full blur-[120px]" />
-        <div className="absolute bottom-10 left-1/3 w-[500px] h-[400px] bg-amber-500/10 rounded-full blur-[140px]" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-[#775465]/25 rounded-full blur-[120px]" />
+        <div className="absolute bottom-10 left-1/3 w-[500px] h-[400px] bg-[#A37B8E]/15 rounded-full blur-[140px]" />
 
         {/* Ambient floating botanical particles */}
         <div className="absolute inset-0 opacity-30">
           {Array.from({ length: 18 }).map((_, i) => (
             <div
               key={i}
-              className="absolute w-2 h-2 rounded-full bg-emerald-400 animate-pulse"
+              className="absolute w-2 h-2 rounded-full bg-[#D4A5B8] animate-pulse"
               style={{
                 left: `${(i * 19) % 100}%`,
                 top: `${(i * 23) % 100}%`,
@@ -81,22 +81,22 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
 
       {/* Top Bar Status / Mute Button */}
       <header className="relative z-10 w-full max-w-5xl flex items-center justify-between">
-        <div className="flex items-center gap-2 text-xs font-medium text-emerald-400/90 tracking-wide">
-          <GraduationCap className="w-4 h-4" />
+        <div className="flex items-center gap-2 text-xs font-medium text-[#EADDE5] tracking-wide">
+          <GraduationCap className="w-4 h-4 text-[#D4A5B8]" />
           <span>English LMS Educational Edition</span>
           {isLmsEmbed && (
             <>
-              <span aria-hidden="true" className="text-emerald-700">·</span>
-              <span className="text-amber-300 font-mono">Antigravity Connected</span>
+              <span aria-hidden="true" className="text-[#775465]">·</span>
+              <span className="text-[#F3E8EE] font-mono">Antigravity Connected</span>
             </>
           )}
         </div>
 
         <button
           onClick={toggleSound}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-slate-300 bg-slate-900/80 border border-slate-700/80 rounded-lg hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-[#FAF6F4] bg-[#2A1B22]/90 border border-[#775465]/50 rounded-lg hover:text-white hover:bg-[#3B2A33] transition-colors cursor-pointer"
         >
-          {isMuted ? <VolumeX className="w-3.5 h-3.5 text-rose-400" /> : <Volume2 className="w-3.5 h-3.5 text-emerald-400" />}
+          {isMuted ? <VolumeX className="w-3.5 h-3.5 text-rose-400" /> : <Volume2 className="w-3.5 h-3.5 text-[#D4A5B8]" />}
           <span>{isMuted ? 'Muted' : 'Audio On'}</span>
         </button>
       </header>
@@ -107,24 +107,24 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
         <div className="flex flex-col items-center">
           <svg
             viewBox="0 0 540 110"
-            className="w-full max-w-md h-auto drop-shadow-[0_10px_25px_rgba(34,197,94,0.25)]"
+            className="w-full max-w-md h-auto drop-shadow-[0_10px_25px_rgba(119,84,101,0.4)]"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
             {/* Botanical decorative leaves */}
             <path
               d="M170 30 C150 15, 120 18, 105 40 C125 42, 155 38, 170 30 Z"
-              fill="#22c55e"
+              fill="#775465"
               opacity="0.8"
             />
             <path
               d="M370 30 C390 15, 420 18, 435 40 C415 42, 385 38, 370 30 Z"
-              fill="#4ade80"
+              fill="#A37B8E"
               opacity="0.8"
             />
             <path
               d="M260 16 C270 6, 275 6, 280 16 C275 12, 265 12, 260 16 Z"
-              fill="#facc15"
+              fill="#D4A5B8"
             />
             {/* Title Text */}
             <text
@@ -132,7 +132,7 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
               y="68"
               textAnchor="middle"
               className="font-bold tracking-wider"
-              fill="#f8fafc"
+              fill="#FAF6F4"
               style={{
                 fontFamily: "'Outfit', sans-serif",
                 fontSize: '44px',
@@ -146,7 +146,7 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
               x="270"
               y="96"
               textAnchor="middle"
-              fill="#86efac"
+              fill="#EADDE5"
               style={{
                 fontFamily: "'Plus Jakarta Sans', sans-serif",
                 fontSize: '13px',
@@ -158,26 +158,26 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
             </text>
           </svg>
 
-          <p className="text-sm sm:text-base text-slate-300 max-w-lg mt-3 leading-relaxed">
+          <p className="text-sm sm:text-base text-[#D8C7D2] max-w-lg mt-3 leading-relaxed">
             Cultivate vocabulary sunflowers and grammar verbenas. Nurture your plot through English quizzes and master native fluency.
           </p>
         </div>
 
         {/* Student Setup Form */}
-        <div className="w-full max-w-md p-5 bg-slate-900/90 border border-slate-800 rounded-2xl shadow-xl space-y-4">
+        <div className="w-full max-w-md p-5 bg-[#2A1B22]/95 border border-[#775465]/50 rounded-2xl shadow-2xl space-y-4">
           <div className="text-left space-y-1.5">
-            <label className="text-xs font-semibold text-slate-300">Gardener Student Name</label>
+            <label className="text-xs font-semibold text-[#EADDE5]">Gardener Student Name</label>
             <input
               type="text"
               value={studentName}
               onChange={(e) => setStudentName(e.target.value)}
               placeholder="Enter your student name..."
-              className="w-full px-3.5 py-2 text-sm bg-slate-950 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-hidden focus:border-amber-400 transition-colors"
+              className="w-full px-3.5 py-2 text-sm bg-[#1E121A] border border-[#775465]/50 rounded-xl text-[#FAF6F4] placeholder-[#A4949E] focus:outline-hidden focus:border-[#EADDE5] transition-colors"
             />
           </div>
 
           <div className="text-left space-y-1.5">
-            <label className="text-xs font-semibold text-slate-300">CEFR English Proficiency Level</label>
+            <label className="text-xs font-semibold text-[#EADDE5]">CEFR English Proficiency Level</label>
             <div className="grid grid-cols-5 gap-1.5">
               {levels.map((lvl) => (
                 <button
@@ -190,15 +190,15 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
                   title={lvl.desc}
                   className={`py-2 text-xs font-semibold rounded-lg border transition-all cursor-pointer ${
                     level === lvl.id
-                      ? 'bg-amber-400 text-slate-950 border-amber-300 shadow-xs'
-                      : 'bg-slate-950 text-slate-300 border-slate-800 hover:border-slate-700 hover:text-white'
+                      ? 'bg-[#775465] text-white border-[#EADDE5] shadow-xs'
+                      : 'bg-[#1E121A] text-[#D8C7D2] border-[#775465]/40 hover:border-[#775465] hover:text-white'
                   }`}
                 >
                   {lvl.id}
                 </button>
               ))}
             </div>
-            <p className="text-[11px] text-slate-400 italic">
+            <p className="text-[11px] text-[#A4949E] italic">
               {levels.find((l) => l.id === level)?.desc}
             </p>
           </div>
@@ -206,9 +206,9 @@ export const TitleScreen: React.FC<TitleScreenProps> = ({
           {/* Primary Start CTA Button */}
           <button
             onClick={handleStart}
-            className="w-full py-3.5 px-6 rounded-xl font-bold text-sm text-slate-950 bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 transition-all transform active:scale-[0.98] cursor-pointer"
+            className="w-full py-3.5 px-6 rounded-xl font-bold text-sm text-white bg-[#775465] hover:bg-[#5D3D4E] border border-[#EADDE5]/30 shadow-lg shadow-[#775465]/30 flex items-center justify-center gap-2 transition-all transform active:scale-[0.98] cursor-pointer"
           >
-            <Play className="w-4 h-4 fill-slate-950" />
+            <Play className="w-4 h-4 fill-white text-white" />
             <span>Enter Garden & Begin Planting</span>
           </button>
         </div>

@@ -57,16 +57,16 @@ export const HUD: React.FC<HUDProps> = ({
       {/* Top Header Cluster */}
       <div className="flex items-start justify-between w-full gap-4">
         {/* Left: Student Identity & Resources */}
-        <div className="pointer-events-auto flex items-center gap-3 p-2 px-3 rounded-2xl bg-slate-950/85 border border-slate-800 text-slate-100 shadow-xl">
+        <div className="pointer-events-auto flex items-center gap-3 p-2 px-3 rounded-2xl bg-[#2A1B22]/95 border border-[#775465]/50 text-[#FAF6F4] shadow-2xl">
           {/* Avatar / Level */}
-          <div className="relative w-10 h-10 rounded-xl bg-emerald-950 border border-emerald-600/50 flex flex-col items-center justify-center text-emerald-400 font-bold">
-            <span className="text-[10px] uppercase tracking-tighter text-emerald-300">LVL</span>
+          <div className="relative w-10 h-10 rounded-xl bg-[#482E3D] border border-[#775465] flex flex-col items-center justify-center text-[#FFF0F5] font-bold">
+            <span className="text-[10px] uppercase tracking-tighter text-[#D4A5B8]">LVL</span>
             <span className="text-sm font-mono tabular-nums leading-none">{profile.level}</span>
           </div>
 
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-slate-200 tracking-tight">
+              <span className="text-xs font-bold text-[#FAF6F4] tracking-tight">
                 {profile.studentName}{profile.studentClass ? ` · ${profile.studentClass}` : ''}
               </span>
               <div className="flex items-center gap-1 text-[11px] text-amber-400 font-semibold font-mono tabular-nums">
@@ -76,14 +76,14 @@ export const HUD: React.FC<HUDProps> = ({
             </div>
 
             {/* XP bar */}
-            <div className="w-32 sm:w-40 h-2 bg-slate-800 rounded-full overflow-hidden">
+            <div className="w-32 sm:w-40 h-2 bg-[#1E121A] border border-[#775465]/40 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-emerald-500 to-amber-400 transition-all duration-300"
+                className="h-full bg-gradient-to-r from-[#775465] via-[#A37B8E] to-amber-400 transition-all duration-300"
                 style={{ width: `${xpProgress}%` }}
               />
             </div>
 
-            <div className="flex items-center gap-3 text-[11px] text-slate-400 font-mono tabular-nums">
+            <div className="flex items-center gap-3 text-[11px] text-[#D8C7D2] font-mono tabular-nums">
               <span>{profile.xp} XP</span>
               <span aria-hidden="true">·</span>
               <div className="flex items-center gap-1 text-amber-300 font-semibold">
@@ -103,11 +103,11 @@ export const HUD: React.FC<HUDProps> = ({
               onOpenAlmanac();
             }}
             title="Open Lexicon Almanac (Vocabulary & Grammar Notebook)"
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl bg-slate-950/85 border border-slate-800 hover:border-amber-400/60 text-slate-200 hover:text-white transition-all shadow-lg cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl bg-[#2A1B22]/90 border border-[#775465]/50 hover:border-[#EADDE5] text-[#FAF6F4] hover:bg-[#3B2A33] transition-all shadow-lg cursor-pointer"
           >
             <BookOpen className="w-4 h-4 text-amber-400" />
             <span className="hidden sm:inline">Lexicon</span>
-            <span className="text-[10px] font-mono tabular-nums text-slate-400">
+            <span className="text-[10px] font-mono tabular-nums text-[#D8C7D2]">
               ({Object.keys(profile.masteryBook).length})
             </span>
           </button>
@@ -119,9 +119,9 @@ export const HUD: React.FC<HUDProps> = ({
               onOpenMarket();
             }}
             title="Open Seed Market"
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl bg-slate-950/85 border border-slate-800 hover:border-emerald-400/60 text-slate-200 hover:text-white transition-all shadow-lg cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl bg-[#2A1B22]/90 border border-[#775465]/50 hover:border-[#EADDE5] text-[#FAF6F4] hover:bg-[#3B2A33] transition-all shadow-lg cursor-pointer"
           >
-            <Store className="w-4 h-4 text-emerald-400" />
+            <Store className="w-4 h-4 text-[#D4A5B8]" />
             <span className="hidden sm:inline">Market</span>
           </button>
 
@@ -132,9 +132,9 @@ export const HUD: React.FC<HUDProps> = ({
               onOpenLMS();
             }}
             title="Antigravity LMS Integration & Grade Passback"
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl bg-indigo-950/85 border border-indigo-700/70 hover:border-indigo-400 text-indigo-200 hover:text-white transition-all shadow-lg cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl bg-[#482E3D]/95 border border-[#775465] hover:border-[#EADDE5] text-[#FFF0F5] hover:bg-[#5D3D4E] transition-all shadow-lg cursor-pointer"
           >
-            <Share2 className="w-4 h-4 text-indigo-400" />
+            <Share2 className="w-4 h-4 text-[#EADDE5]" />
             <span className="hidden sm:inline">LMS Sync</span>
           </button>
 
@@ -142,9 +142,9 @@ export const HUD: React.FC<HUDProps> = ({
           <button
             onClick={handleToggleAudio}
             title={isMuted ? 'Unmute Audio' : 'Mute Audio'}
-            className="p-2 text-slate-400 hover:text-white rounded-xl bg-slate-950/85 border border-slate-800 transition-colors cursor-pointer"
+            className="p-2 text-[#D8C7D2] hover:text-white rounded-xl bg-[#2A1B22]/90 border border-[#775465]/50 hover:bg-[#3B2A33] transition-colors cursor-pointer"
           >
-            {isMuted ? <VolumeX className="w-4 h-4 text-rose-400" /> : <Volume2 className="w-4 h-4 text-emerald-400" />}
+            {isMuted ? <VolumeX className="w-4 h-4 text-rose-400" /> : <Volume2 className="w-4 h-4 text-[#D4A5B8]" />}
           </button>
 
           {/* Pause */}
@@ -154,7 +154,7 @@ export const HUD: React.FC<HUDProps> = ({
               onPause();
             }}
             title="Pause Game (Esc)"
-            className="p-2 text-slate-400 hover:text-white rounded-xl bg-slate-950/85 border border-slate-800 transition-colors cursor-pointer"
+            className="p-2 text-[#D8C7D2] hover:text-white rounded-xl bg-[#2A1B22]/90 border border-[#775465]/50 hover:bg-[#3B2A33] transition-colors cursor-pointer"
           >
             <Pause className="w-4 h-4" />
           </button>
@@ -164,15 +164,15 @@ export const HUD: React.FC<HUDProps> = ({
       {/* Bottom Row: Active Quest on Left + Toolbelt in Center */}
       <div className="flex items-end justify-between w-full gap-4">
         {/* Active Learning Quest */}
-        <div className="pointer-events-auto hidden md:flex flex-col p-3 rounded-2xl bg-slate-950/85 border border-slate-800 text-slate-200 max-w-xs shadow-xl space-y-1.5">
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-400">
+        <div className="pointer-events-auto hidden md:flex flex-col p-3 rounded-2xl bg-[#2A1B22]/95 border border-[#775465]/50 text-[#FAF6F4] max-w-xs shadow-2xl space-y-1.5">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-[#D4A5B8]">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Active Botanical Quest</span>
           </div>
           {activeQuests.length > 0 ? (
             <div>
-              <p className="text-xs text-slate-300 font-medium">{activeQuests[0].title}</p>
-              <div className="flex items-center justify-between text-[11px] text-slate-400 mt-1 font-mono tabular-nums">
+              <p className="text-xs text-[#EADDE5] font-medium">{activeQuests[0].title}</p>
+              <div className="flex items-center justify-between text-[11px] text-[#C4B2BD] mt-1 font-mono tabular-nums">
                 <span>Progress</span>
                 <span>
                   {activeQuests[0].currentProgress} / {activeQuests[0].targetCount}
@@ -180,12 +180,12 @@ export const HUD: React.FC<HUDProps> = ({
               </div>
             </div>
           ) : (
-            <p className="text-xs text-slate-500 italic">Tend your garden to earn master status.</p>
+            <p className="text-xs text-[#A4949E] italic">Tend your garden to earn master status.</p>
           )}
         </div>
 
         {/* Center: Tool Belt & Seed Selector */}
-        <div className="pointer-events-auto mx-auto flex items-center gap-2 p-2 rounded-2xl bg-slate-950/90 border border-slate-800 shadow-2xl">
+        <div className="pointer-events-auto mx-auto flex items-center gap-2 p-2 rounded-2xl bg-[#2A1B22]/95 border border-[#775465]/50 shadow-2xl">
           {/* Trowel Tool */}
           <button
             onClick={() => {
@@ -195,8 +195,8 @@ export const HUD: React.FC<HUDProps> = ({
             title="Trowel: Clear or inspect plot"
             className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
               activeTool === 'trowel'
-                ? 'bg-amber-500 text-slate-950 shadow-md font-bold'
-                : 'text-slate-300 hover:bg-slate-900'
+                ? 'bg-[#775465] text-white shadow-md font-bold border border-[#EADDE5]/30'
+                : 'text-[#D8C7D2] hover:bg-[#3B2A33] hover:text-white'
             }`}
           >
             <Shovel className="w-4 h-4" />
@@ -212,8 +212,8 @@ export const HUD: React.FC<HUDProps> = ({
             title="Watering Can: Hydrate plants and answer quiz"
             className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
               activeTool === 'water'
-                ? 'bg-sky-500 text-slate-950 shadow-md font-bold'
-                : 'text-slate-300 hover:bg-slate-900'
+                ? 'bg-[#5D3D4E] text-white shadow-md font-bold border border-[#EADDE5]/30'
+                : 'text-[#D8C7D2] hover:bg-[#3B2A33] hover:text-white'
             }`}
           >
             <Droplets className="w-4 h-4" />
@@ -221,7 +221,7 @@ export const HUD: React.FC<HUDProps> = ({
           </button>
 
           {/* Seed Selector Dropdown / Buttons */}
-          <div className="flex items-center gap-1.5 pl-2 border-l border-slate-800">
+          <div className="flex items-center gap-1.5 pl-2 border-l border-[#775465]/40">
             {availableSeeds.map((crop) => {
               const isSelected = activeTool === 'seed' && selectedSeed?.id === crop.id;
               return (
@@ -235,8 +235,8 @@ export const HUD: React.FC<HUDProps> = ({
                   title={`Plant ${crop.name} (${crop.category.replace('_', ' ')})`}
                   className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
                     isSelected
-                      ? 'bg-emerald-600 text-white shadow-md ring-2 ring-emerald-400'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                      ? 'bg-[#775465] text-white shadow-md ring-2 ring-[#EADDE5]'
+                      : 'text-[#C4B2BD] hover:text-white hover:bg-[#3B2A33]'
                   }`}
                 >
                   <span

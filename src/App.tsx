@@ -467,7 +467,7 @@ export default function App() {
   );
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-[#0c1a11] select-none font-sans text-slate-100">
+    <div className="relative w-screen h-screen overflow-hidden bg-[#1E121A] select-none font-sans text-[#FAF6F4]">
       {gameState === 'TITLE_MENU' && (
         <TitleScreen
           onStartGame={handleStartGame}
