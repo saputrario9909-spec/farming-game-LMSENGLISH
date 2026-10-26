@@ -16,6 +16,7 @@ import {
 import { CROPS_CATALOG, INITIAL_CHALLENGES } from './data/englishCurriculum';
 import { gameAudio } from './services/audio';
 import { lmsBridge } from './services/lmsBridge';
+import { fetchQuestionsFromLMS } from './services/lmsQuestionFetcher';
 import { GardenCanvas } from './components/GardenCanvas';
 import { HUD } from './components/HUD';
 import { TitleScreen } from './components/TitleScreen';
@@ -107,6 +108,7 @@ export default function App() {
   });
 
   const [currentLevel, setCurrentLevel] = useState<CefrLevel>('B1');
+  const [dynamicChallenges, setDynamicChallenges] = useState<EnglishChallenge[]>([]);
   const [plots, setPlots] = useState<GardenPlot[]>(createInitialPlots);
   const [selectedPlotId, setSelectedPlotId] = useState<number | null>(null);
 
@@ -165,6 +167,40 @@ export default function App() {
     return () => clearInterval(interval);
   }, [gameState]);
 
+  // Fetch dynamic challenges from LMS API when game starts
+  useEffect(() => {
+    if (gameState !== 'PLAYING') return;
+
+    let isMounted = true;
+    const loadLmsQuestions = async () => {
+      try {
+        console.log(`[LMS Question Fetcher] Mengambil bank soal LMS untuk level: ${currentLevel}...`);
+        const questions = await fetchQuestionsFromLMS(undefined, currentLevel);
+        if (isMounted && questions.length > 0) {
+          console.log(`[LMS Question Fetcher] Berhasil memuat ${questions.length} soal dari LMS!`);
+          setDynamicChallenges(questions);
+        } else if (isMounted) {
+          // Jika soal untuk level spesifik belum ada, coba muat semua soal umum dari LMS
+          const allQuestions = await fetchQuestionsFromLMS();
+          if (isMounted && allQuestions.length > 0) {
+            console.log(`[LMS Question Fetcher] Berhasil memuat ${allQuestions.length} soal umum dari LMS!`);
+            setDynamicChallenges(allQuestions);
+          } else {
+            console.log('[LMS Question Fetcher] Bank soal LMS belum tersedia, menggunakan soal bawaan (fallback).');
+          }
+        }
+      } catch (err) {
+        console.warn('[LMS Question Fetcher] Gagal mengambil soal dari LMS:', err);
+      }
+    };
+
+    loadLmsQuestions();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [gameState, currentLevel]);
+
   // Global Keyboard shortcuts (Escape for pause/modals)
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -195,9 +231,25 @@ export default function App() {
     setGameState('PLAYING');
   };
 
-  // Find a challenge matching category and CEFR level
+  // Find a challenge matching category and CEFR level (prefer dynamic LMS challenges)
   const getChallengeForCrop = useCallback(
     (category: string, level: CefrLevel): EnglishChallenge => {
+      // 1. Prioritaskan soal dinamis dari LMS jika tersedia
+      if (dynamicChallenges && dynamicChallenges.length > 0) {
+        const dynamicFiltered = dynamicChallenges.filter(
+          (c) => c.category === category && (c.level === level || c.level === 'B1' || c.level === 'A2')
+        );
+        if (dynamicFiltered.length > 0) {
+          return dynamicFiltered[Math.floor(Math.random() * dynamicFiltered.length)];
+        }
+        const categoryMatches = dynamicChallenges.filter((c) => c.category === category);
+        if (categoryMatches.length > 0) {
+          return categoryMatches[Math.floor(Math.random() * categoryMatches.length)];
+        }
+        return dynamicChallenges[Math.floor(Math.random() * dynamicChallenges.length)];
+      }
+
+      // 2. Fallback ke soal bawaan jika dynamicChallenges kosong
       const filtered = INITIAL_CHALLENGES.filter(
         (c) => c.category === category && (c.level === level || c.level === 'B1' || c.level === 'A2')
       );
@@ -206,7 +258,7 @@ export default function App() {
       }
       return INITIAL_CHALLENGES[Math.floor(Math.random() * INITIAL_CHALLENGES.length)];
     },
-    []
+    [dynamicChallenges]
   );
 
   // Trigger plot interaction
