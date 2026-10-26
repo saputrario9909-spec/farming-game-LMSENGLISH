@@ -82,14 +82,16 @@ export default function App() {
 
   // Student Profile State
   const [profile, setProfile] = useState<StudentProfile>(() => {
-    // Check URL params for student name / id from LMS
+    // Baca parameter identitas siswa dari URL (student_id, student_name, class)
     const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
     const lmsStudentId = params?.get('student_id') || 'student_' + Math.floor(1000 + Math.random() * 9000);
     const lmsStudentName = params?.get('student_name') || 'Botanical Scholar';
+    const lmsStudentClass = params?.get('class') || undefined;
 
     return {
       studentId: lmsStudentId,
       studentName: lmsStudentName,
+      studentClass: lmsStudentClass,
       coins: 60,
       xp: 0,
       level: 1,
@@ -188,7 +190,7 @@ export default function App() {
 
   // Start game from title screen
   const handleStartGame = (name: string, level: CefrLevel) => {
-    setProfile((prev) => ({ ...prev, studentName: name }));
+    setProfile((prev) => ({ ...prev, studentName: name.trim() || prev.studentName }));
     setCurrentLevel(level);
     setGameState('PLAYING');
   };

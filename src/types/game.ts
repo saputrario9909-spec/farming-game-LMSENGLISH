@@ -70,6 +70,7 @@ export interface StudentMasteryEntry {
 export interface StudentProfile {
   studentId: string;
   studentName: string;
+  studentClass?: string;
   coins: number;
   xp: number;
   level: number;

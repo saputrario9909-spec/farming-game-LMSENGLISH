@@ -67,7 +67,7 @@ export const HUD: React.FC<HUDProps> = ({
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-slate-200 tracking-tight">
-                {profile.studentName}
+                {profile.studentName}{profile.studentClass ? ` · ${profile.studentClass}` : ''}
               </span>
               <div className="flex items-center gap-1 text-[11px] text-amber-400 font-semibold font-mono tabular-nums">
                 <Flame className="w-3.5 h-3.5 fill-amber-400" />
