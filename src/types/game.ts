@@ -8,7 +8,7 @@ export type ChallengeCategory =
   | 'collocations' 
   | 'phrasal_verbs';
 
-export type ChallengeType = 'multiple_choice' | 'fill_in_the_blank' | 'sentence_scramble' | 'word_unscramble';
+export type ChallengeType = 'multiple_choice' | 'complex_mcq' | 'true_false' | 'fill_in_the_blank' | 'sentence_scramble' | 'word_unscramble';
 
 export interface EnglishChallenge {
   id: string;

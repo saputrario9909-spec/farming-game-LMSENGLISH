@@ -1,4 +1,4 @@
-import { CefrLevel, ChallengeCategory, EnglishChallenge } from '../types/game';
+import { CefrLevel, ChallengeCategory, ChallengeType, EnglishChallenge } from '../types/game';
 
 const LMS_API_URL = 'https://english-studiosmasif.vercel.app/api/game/questions';
 
@@ -6,6 +6,7 @@ export interface LMSQuestionRaw {
   Question_ID?: string;
   Category?: string;
   Level?: string;
+  Question_Type?: string;
   Question_Text?: string;
   Option_A?: string;
   Option_B?: string;
@@ -63,11 +64,22 @@ function mapRawToChallenge(item: LMSQuestionRaw, index: number): EnglishChalleng
     answerText = optD;
   }
 
+  // Tentukan jenis soal berdasarkan Question_Type
+  let challengeType: ChallengeType = 'multiple_choice';
+  const rawType = String(item.Question_Type || '').toLowerCase();
+  if (rawType.includes('complex') || rawType.includes('multi')) {
+    challengeType = 'complex_mcq';
+  } else if (rawType.includes('true')) {
+    challengeType = 'true_false';
+  } else if (rawType.includes('fill')) {
+    challengeType = 'fill_in_the_blank';
+  }
+
   return {
     id: item.Question_ID ? String(item.Question_ID).trim() : `lms_q_${index}_${Date.now()}`,
     category: normalizeCategory(item.Category),
     level: normalizeLevel(item.Level),
-    type: 'multiple_choice',
+    type: challengeType,
     prompt: item.Question_Text || 'Pilih jawaban yang benar:',
     options,
     correctAnswer: answerText,
@@ -79,18 +91,15 @@ function mapRawToChallenge(item: LMSQuestionRaw, index: number): EnglishChalleng
 
 /**
  * Mengambil bank soal dari LMS API dan memetakannya ke EnglishChallenge[]
+ * Parameter category dan level dipertahankan di signature, namun pengambilan soal mengambil semua data tanpa filter level/kategori.
+ * Soal bertipe bacaan panjang (reading/passage) dan teks pertanyaan yang terlalu panjang (>200 karakter) otomatis disaring keluar.
  */
 export async function fetchQuestionsFromLMS(
-  category?: string,
-  level?: string
+  _category?: string,
+  _level?: string
 ): Promise<EnglishChallenge[]> {
   try {
-    const params = new URLSearchParams();
-    if (category && category.trim()) params.append('category', category.trim());
-    if (level && level.trim()) params.append('level', level.trim());
-
-    const queryString = params.toString() ? `?${params.toString()}` : '';
-    const url = `${LMS_API_URL}${queryString}`;
+    const url = LMS_API_URL;
 
     const res = await fetch(url, {
       method: 'GET',
@@ -110,7 +119,20 @@ export async function fetchQuestionsFromLMS(
       return [];
     }
 
-    const challenges: EnglishChallenge[] = json.data.map((item: LMSQuestionRaw, idx: number) =>
+    // Filter Reading: Buang soal reading/passage atau soal dengan Question_Text > 200 karakter
+    const eligibleData = json.data.filter((item: LMSQuestionRaw) => {
+      const qType = String(item.Question_Type || '').toLowerCase();
+      if (qType.includes('reading') || qType.includes('passage') || qType.includes('text')) {
+        return false;
+      }
+      const qText = String(item.Question_Text || '').trim();
+      if (qText.length > 200) {
+        return false;
+      }
+      return true;
+    });
+
+    const challenges: EnglishChallenge[] = eligibleData.map((item: LMSQuestionRaw, idx: number) =>
       mapRawToChallenge(item, idx)
     );
 
