@@ -44,14 +44,33 @@ function normalizeLevel(rawLevel: string = ''): CefrLevel {
  * Memetakan item raw dari LMS Google Sheets API ke EnglishChallenge format Game
  */
 function mapRawToChallenge(item: LMSQuestionRaw, index: number): EnglishChallenge {
-  const optA = String(item.Option_A || '').trim();
-  const optB = String(item.Option_B || '').trim();
-  const optC = String(item.Option_C || '').trim();
-  const optD = String(item.Option_D || '').trim();
+  let promptText = String(item.Question_Text || '').trim();
+  let optA = String(item.Option_A || '').trim();
+  let optB = String(item.Option_B || '').trim();
+  let optC = String(item.Option_C || '').trim();
+  let optD = String(item.Option_D || '').trim();
+  let answerText = String(item.Correct_Answer || '').trim();
+  let explanationText = String(item.Explanation || '').trim();
+
+  // Deteksi pemulihan jika baris soal pada Google Sheet tergeser 1 kolom (kolom Question_Text berisi jenis soal)
+  const isTypeInQuestionText =
+    promptText.toLowerCase() === 'multiple_choice' ||
+    promptText.toLowerCase() === 'complex_mcq' ||
+    promptText.toLowerCase() === 'true_false' ||
+    promptText.toLowerCase() === 'fill_in_the_blank';
+
+  if (isTypeInQuestionText) {
+    promptText = optA;
+    optA = optB;
+    optB = optC;
+    optC = optD;
+    optD = answerText;
+    answerText = explanationText;
+    explanationText = 'Kunci jawaban terverifikasi dari kurikulum guru.';
+  }
 
   const options = [optA, optB, optC, optD].filter(Boolean);
 
-  let answerText = String(item.Correct_Answer || '').trim();
   const cleanAns = answerText.toUpperCase().replace(/[\(\)\.\:\_\-]/g, '').trim();
 
   // Jika Correct_Answer berupa huruf atau label opsi A-D, cocokkan dengan opsi yang sesuai
@@ -84,11 +103,11 @@ function mapRawToChallenge(item: LMSQuestionRaw, index: number): EnglishChalleng
     category: normalizeCategory(item.Category),
     level: normalizeLevel(item.Level),
     type: challengeType,
-    prompt: item.Question_Text || 'Pilih jawaban yang benar:',
+    prompt: promptText || 'Pilih jawaban yang benar:',
     options,
     correctAnswer: answerText,
-    explanation: item.Explanation || 'Perhatikan opsi jawaban yang tepat di atas.',
-    exampleSentence: item.Question_Text || '',
+    explanation: explanationText || item.Explanation || 'Perhatikan opsi jawaban yang tepat di atas.',
+    exampleSentence: promptText || '',
     hint: 'Perhatikan petunjuk konteks dan struktur kalimat.',
   };
 }
