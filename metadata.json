@@ -1,0 +1,6 @@
+{
+  "name": "Verdant Lexicon: English Garden Farming Game",
+  "description": "An interactive educational farming game where English learners grow virtual crops through vocabulary quizzes and grammar challenges, featuring comprehensive LMS embedding and student grade synchronization.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
