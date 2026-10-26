@@ -8,6 +8,8 @@ export interface LMSMessageEventLog {
   timestamp: string;
 }
 
+export const PRODUCTION_LMS_ORIGIN = 'https://english-studiosmasif.vercel.app';
+
 class LMSBridgeService {
   private config: LMSConfig = {
     lmsMode: false,
@@ -22,6 +24,45 @@ class LMSBridgeService {
   constructor() {
     this.parseQueryParams();
     this.setupPostMessageListener();
+  }
+
+  /**
+   * Mendapatkan target origin yang aman untuk postMessage.
+   * - Development: Jika game berjalan di localhost / 127.0.0.1 atau di-embed dari localhost, izinkan '*' untuk kemudahan testing.
+   * - Production: Kunci target origin ke URL LMS resmi: "https://english-studiosmasif.vercel.app"
+   */
+  public getTargetOrigin(): string {
+    if (typeof window === 'undefined') return PRODUCTION_LMS_ORIGIN;
+
+    const hostname = window.location.hostname;
+    const isLocalhost =
+      hostname === 'localhost' ||
+      hostname === '127.0.0.1' ||
+      hostname === '[::1]' ||
+      hostname.endsWith('.localhost');
+
+    // Cek juga apakah parent window berasal dari localhost (misal game dibuka via iframe di LMS localhost:3000)
+    let isParentLocalhost = false;
+    try {
+      if (document.referrer) {
+        const refUrl = new URL(document.referrer);
+        if (
+          refUrl.hostname === 'localhost' ||
+          refUrl.hostname === '127.0.0.1' ||
+          refUrl.hostname === '[::1]'
+        ) {
+          isParentLocalhost = true;
+        }
+      }
+    } catch {
+      // Abaikan jika URL referrer tidak valid
+    }
+
+    if (isLocalhost || isParentLocalhost) {
+      return '*';
+    }
+
+    return PRODUCTION_LMS_ORIGIN;
   }
 
   public parseQueryParams(): LMSConfig {
@@ -94,7 +135,7 @@ class LMSBridgeService {
     return [...this.messageHistory];
   }
 
-  // Sends message to parent LMS iframe or window.opener
+  // Sends message to parent LMS iframe or window.opener with secure targetOrigin
   public sendToLMS(payload: LMSPostMessagePayload) {
     if (typeof window === 'undefined') return;
 
@@ -110,13 +151,15 @@ class LMSBridgeService {
     if (this.messageHistory.length > 50) this.messageHistory.pop();
     this.notifyListeners(logEntry);
 
+    const targetOrigin = this.getTargetOrigin();
+
     // Send to parent window if in iframe
     if (window.parent && window.parent !== window) {
-      window.parent.postMessage(payload, '*');
+      window.parent.postMessage(payload, targetOrigin);
     }
     // Also send to window.opener if opened via popup
     if (window.opener) {
-      window.opener.postMessage(payload, '*');
+      window.opener.postMessage(payload, targetOrigin);
     }
   }
 
